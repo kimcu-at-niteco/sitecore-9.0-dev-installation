@@ -1,0 +1,6 @@
+*.log
+build/assets/*
+!build/assets/readme.txt
+build/**/*.jks
+build/**/*.p12
+build/SolrDocker/SolrData
