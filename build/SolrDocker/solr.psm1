@@ -1,16 +1,32 @@
 
+
 function Install-Solr {
     param(
         [string] $DockerComposeFile,
         [string] $SolrDataRootPath
     )
 
-    If(!(Test-Path $SolrDataRootPath))
-    {
+    Write-Host "Prepare to install Solr-Docker container"
+    CleanUp-Solr-Docker -DockerComposeFile $DockerComposeFile -SolrDataRootPath $SolrDataRootPath -ReCreateSolrDataFolder $true
+
+    Write-Host "Intializing Solr-Docker container"
+    & docker-compose --file $DockerComposeFile up -d --build
+}
+
+function CleanUp-Solr-Docker {
+    param(
+        [string] $DockerComposeFile,
+        [string] $SolrDataRootPath,
+        [bool] $ReCreateSolrDataFolder = $false
+    )
+    & docker-compose --file $DockerComposeFile down
+    If((Test-Path $SolrDataRootPath)) {
+        Remove-Item -Path $SolrDataRootPath -Force -Recurse
+    } 
+
+    IF(!(Test-Path $SolrDataRootPath) -and $ReCreateSolrDataFolder) {
         New-Item -ItemType Directory -Force -Path $SolrDataRootPath
     }
-
-    & docker-compose --file $DockerComposeFile up -d --build
 }
 
 function Get-KeyTool {
@@ -38,15 +54,6 @@ function Uninstall-Solr {
         [string] $P12KeystoreFile,
         [string] $KeystorePassword
     )
-    Write-Host "Remove the container of Solr in Docker."
-    & docker-compose --file $DockerComposeFile down
-
-    Write-Host "Remove the Solr Data"
-    If((Test-Path $SolrDataRoot))
-    {
-        Remove-Item -Path $SolrDataRoot -Force -Recurse
-    }
-
     #Remove certificate from KeyStore
     Write-Host "Remove certificate from KeyStore."
     $certPath = Join-Path $PSScriptRoot $P12KeystoreFile
@@ -60,6 +67,8 @@ function Uninstall-Solr {
     Write-Host 'Removing Solr-SSl Certificate from CA'
     Get-ChildItem -Path "Cert:\LocalMachine\Root" | Where-Object -Property FriendlyName -eq "solr-ssl" | Remove-Item
     Write-Host 'Remove Solr-SSl Certificate from CA successfully'
+
+    CleanUp-Solr-Docker -DockerComposeFile $DockerComposeFile -SolrDataRootPath $SolrDataRoot
 }
 
 function Remove-P12File {
@@ -143,8 +152,8 @@ function Remove-SitecoreSolrCore {
         $SolrRequest = [System.Net.WebRequest]::Create($uri)
         $SolrResponse = $SolrRequest.GetResponse()
         try {
-            If ($SolrResponse.StatusCode -ne 200) {
-                throw "Could not contact Solr on '$SolrUrl'. Response status was '$SolrResponse.StatusCode'"
+            If ([int]$SolrResponse.StatusCode -ne 200) {
+                throw "[Remove] Could not contact Solr on '$SolrUrl'. . Response status was '$SolrResponse.StatusCode'"
             }
         }
         finally {

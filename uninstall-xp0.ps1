@@ -45,6 +45,8 @@ Remove-SitecoreDatabase -Name "${SolutionPrefix}_Processing.Pools" -Server $data
 Remove-SitecoreDatabase -Name "${SolutionPrefix}_Processing.Tasks" -Server $database
 Remove-SitecoreDatabase -Name "${SolutionPrefix}_ReferenceData" -Server $database
 Remove-SitecoreDatabase -Name "${SolutionPrefix}_Reporting" -Server $database
+Remove-SitecoreDatabase -Name "${SolutionPrefix}_EXM.Master" -Server $database
+Remove-SitecoreDatabase -Name "${SolutionPrefix}_Messaging" -Server $database
 
 # Delete xconnect files
 Remove-SitecoreFiles $XConnectSiteRoot
@@ -69,17 +71,9 @@ Remove-SitecoreFiles $SitecoreSiteRoot
 # Delete sitecore certificate
 Remove-SitecoreCertificate $SitecoreSiteName
 
-# Delete Solr Cores
-if (Get-Module("solr")) {
-    Remove-Module "solr"
-}
-Import-Module "$SolrDockerPath\solr.psm1"
+# Remove Solr indexes
 Remove-SitecoreSolrCore -SolrUrl $SolrUrl -SolutionPrefix $SolutionPrefix
-Uninstall-Solr -DockerComposeFile $DockerComposeFile `
-                -SolrDataRoot $SolrRoot `
-                -P12KeystoreFile $P12KeystoreFile `
-                -KeystorePassword $KeystorePassword
+
 
 #Remove log files
 get-childitem .\ -include *.log -recurse | foreach ($_) {Remove-Item $_.fullname}
-

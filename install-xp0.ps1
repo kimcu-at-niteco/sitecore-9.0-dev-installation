@@ -8,24 +8,6 @@ $ErrorActionPreference = 'Stop'
 . $PSScriptRoot\settings.ps1
 
 
-
-
-function Install-SolrDocker {
-    if (Get-Module("solr")) {
-        Remove-Module "solr"
-    }
-    Import-Module "$SolrDockerPath\solr.psm1" -Verbose
-    Write-Host $SolrRoot
-    Install-Solr -DockerComposeFile $DockerComposeFile -SolrDataRootPath $SolrRoot
-    Install-SolrCertificate -DockerContainer $DockerContainer `
-                            -KeystoreFile $KeystoreFile `
-                            -KeystorePassword $KeystorePassword `
-                            -P12Path $P12KeystoreFile
-}
-
-
-
-
 function Install-Prerequisites {
     #Verify SQL version
     $SqlRequiredVersion = "13.0.4001"
@@ -109,14 +91,15 @@ function Install-Prerequisites {
     }
 
     # Verify Solr
-    Write-Host "Verifying Solr connection" -ForegroundColor Green
+    Write-Host "Verifying Solr connection $SolrUrl" -ForegroundColor Green
     if (-not $SolrUrl.ToLower().StartsWith("https")) {
         throw "Solr URL ($SolrUrl) must be secured with https"
     }
-	$SolrRequest = [System.Net.WebRequest]::Create($SolrUrl)
+    
+    $SolrRequest = [System.Net.WebRequest]::Create($SolrUrl)
 	$SolrResponse = $SolrRequest.GetResponse()
 	try {
-		If ($SolrResponse.StatusCode -ne 200) {
+		If ([int]$SolrResponse.StatusCode -ne 200) {
 			throw "Could not contact Solr on '$SolrUrl'. Response status was '$SolrResponse.StatusCode'"
 		}
 	}
@@ -124,6 +107,7 @@ function Install-Prerequisites {
 		$SolrResponse.Close()
     }
     
+
 	#Verify .NET framework
 	$requiredDotNetFrameworkVersionValue = 394802
 	$requiredDotNetFrameworkVersion = "4.6.2"
@@ -296,12 +280,6 @@ function Install-Sitecore {
         throw
     }
 }
-
-Write-Host "*******************************************************" -ForegroundColor Green
-Write-Host " Installing Docker Solr" -ForegroundColor Green
-Write-Host "*******************************************************" -ForegroundColor Green
-    Install-SolrDocker
-    Start-Sleep -Seconds 3
 
 Write-Host "*******************************************************" -ForegroundColor Green
 Write-Host " Installing Sitecore $SitecoreVersion" -ForegroundColor Green
