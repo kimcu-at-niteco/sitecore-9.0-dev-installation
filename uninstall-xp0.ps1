@@ -72,6 +72,10 @@ Remove-SitecoreFiles $SitecoreSiteRoot
 Remove-SitecoreCertificate $SitecoreSiteName
 
 # Remove Solr indexes
+if (Get-Module("solr")) {
+    Remove-Module "solr"
+}
+Import-Module "$SolrDockerPath\solr.psm1" -Verbose
 Remove-SitecoreSolrCore -SolrUrl $SolrUrl -SolutionPrefix $SolutionPrefix
 
 
