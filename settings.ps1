@@ -3,8 +3,9 @@ $SolutionPrefix = "SC90"
 $SitePostFix = "dev.local"
 $webroot = "D:\inetpub\wwwroot"
 
-$SitecoreVersion = "9.0.0 rev. 171002"
-$InstallerVersion = "1.0.2"
+#$SitecoreVersion = "9.0.0 rev. 171002"
+$SitecoreVersion = "9.0.1 rev. 171219"
+$InstallerVersion = "1.1.0"
 
 # Assets and prerequisites
 $AssetsRoot = "$PSScriptRoot\build\assets"
@@ -17,7 +18,7 @@ $LicenseFile = "$AssetsRoot\license.xml"
 $CertPath = Join-Path "$AssetsRoot" "Certificates"
 
 # SQL Parameters
-$SqlServer = "."
+$SqlServer = "localhost"
 $SqlAdminUser = "sa"
 $SqlAdminPassword = "Niteco@2017"
 
