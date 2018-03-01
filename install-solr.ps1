@@ -16,7 +16,7 @@ $ErrorActionPreference = 'Stop'
 if (Get-Module("solr")) {
     Remove-Module "solr"
 }
-Import-Module "$SolrDockerPath\solr.psm1" -Verbose
+Import-Module "$SolrDockerPath\solr.psm1" #-Verbose
 
 function Install-SolrDocker {
     try {

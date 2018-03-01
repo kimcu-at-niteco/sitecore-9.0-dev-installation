@@ -75,7 +75,7 @@ Remove-SitecoreCertificate $SitecoreSiteName
 if (Get-Module("solr")) {
     Remove-Module "solr"
 }
-Import-Module "$SolrDockerPath\solr.psm1" -Verbose
+Import-Module "$SolrDockerPath\solr.psm1" #-Verbose
 Remove-SitecoreSolrCore -SolrUrl $SolrUrl -SolutionPrefix $SolutionPrefix
 
 
