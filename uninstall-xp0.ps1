@@ -16,12 +16,12 @@ if (Get-Module("uninstall")) {
     Remove-Module "uninstall"
 }
 
-# $carbon = Get-Module Carbon
-# if (-not $carbon) {
-#     write-host "Installing Carbon..." -ForegroundColor Green
-#     Install-Module -Name 'Carbon' -AllowClobber -Scope CurrentUser
-#     Import-Module Carbon
-# }
+$carbon = Get-Module Carbon
+if (-not $carbon) {
+    write-host "Installing Carbon..." -ForegroundColor Green
+    Install-Module -Name 'Carbon' -AllowClobber -Scope CurrentUser
+    Import-Module Carbon
+}
 
 Import-Module "$PSScriptRoot\build\uninstall\uninstall.psm1"
 
