@@ -291,6 +291,9 @@ Write-Host "*******************************************************" -Foreground
     Install-XConnect
     Install-Sitecore
 
+    #Remove log files
+    get-childitem .\ -include *.log -recurse | foreach ($_) {Remove-Item $_.fullname}
+
 
 
 
